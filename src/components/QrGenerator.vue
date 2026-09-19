@@ -1,6 +1,15 @@
 <template>
   <div class="p-8 max-w-2xl mx-auto space-y-6">
-    <h1 class="text-2xl font-bold text-gray-800">QR Code Studio</h1>
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-800">QR Code Studio</h1>
+      <button 
+        @click="resetToDefaults" 
+        type="button" 
+        class="text-xs text-gray-500 hover:text-red-600 border border-gray-300 hover:border-red-300 px-3 py-1.5 rounded-lg transition cursor-pointer"
+      >
+        Reset to Defaults
+      </button>
+    </div>
 
     <div class="space-y-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
       <div>
@@ -38,7 +47,7 @@
       <hr class="my-4 border-gray-200" />
 
       <h3 class="font-semibold text-gray-700 text-sm">Corners Customization:</h3>
-      
+
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-medium mb-1 text-gray-600">Corner Square Style:</label>
@@ -73,17 +82,17 @@
       <div>
         <label class="block text-sm font-medium mb-1">Center Logo:</label>
         <input 
-          ref="fileInputRef"
+          ref="fileInput"
           type="file" 
           accept="image/*" 
           @change="onLogoSelected" 
           class="w-full text-sm text-gray-500 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
         />
-        
+
         <div v-if="options.image" class="mt-3 space-y-2">
           <div class="flex justify-between items-center text-xs">
             <span>Logo Size: {{ Math.round(options.imageSize * 100) }}%</span>
-            <button @click="removeLogo" type="button" class="text-red-600 hover:underline">Remove Logo</button>
+            <button @click="removeLogo" type="button" class="text-red-600 hover:underline cursor-pointer">Remove Logo</button>
           </div>
           <input 
             v-model.number="options.imageSize" 
@@ -102,10 +111,10 @@
       <div ref="container" class="bg-white p-2 rounded-lg shadow-sm"></div>
 
       <div class="flex gap-3 w-full max-w-xs">
-        <button @click="downloadQr('png')" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
+        <button @click="downloadQr('png')" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition cursor-pointer">
           Download PNG
         </button>
-        <button @click="downloadQr('svg')" class="flex-1 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition">
+        <button @click="downloadQr('svg')" class="flex-1 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition cursor-pointer">
           Download SVG
         </button>
       </div>
@@ -118,9 +127,9 @@ import { ref, reactive, onMounted } from 'vue'
 import QRCodeStyling from 'qr-code-styling'
 
 const container = ref(null)
-const fileInputRef = ref(null)
+const fileInput = ref(null)
 
-const options = reactive({
+const defaultOptions = {
   data: 'https://google.com',
   margin: 4,
   dotsColor: '#1d4ed8',
@@ -131,7 +140,9 @@ const options = reactive({
   cornerDotColor: '#1e3a8a',
   image: '',
   imageSize: 0.35
-})
+}
+
+const options = reactive({ ...defaultOptions })
 
 const qrCode = new QRCodeStyling({
   width: 250,
@@ -210,8 +221,16 @@ const onLogoSelected = (event) => {
 
 const removeLogo = () => {
   options.image = ''
-  if (fileInputRef.value) {
-    fileInputRef.value.value = ''
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+  update()
+}
+
+const resetToDefaults = () => {
+  Object.assign(options, defaultOptions)
+  if (fileInput.value) {
+    fileInput.value.value = ''
   }
   update()
 }
