@@ -250,6 +250,11 @@
                 </svg>
                 Download SVG (Vector)
               </button>
+
+              <button @click="copyToClipboard" type="button" :disabled="isCopying" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-all cursor-pointer disabled:opacity-50">
+                <span v-if="!copied">Copy to Clipboard</span>
+                <span v-else class="text-emerald-600 font-bold">Copied!</span>
+              </button>
             </div>
           </div>
         </div>
@@ -264,6 +269,8 @@ import QRCodeStyling from 'qr-code-styling'
 
 const container = ref(null)
 const fileInput = ref(null)
+const copied = ref(false)
+const isCopying = ref(false)
 
 const defaultOptions = {
   data: 'https://google.com',
@@ -310,6 +317,30 @@ const qrCode = new QRCodeStyling({
     imageSize: options.imageSize
   }
 })
+
+const copyToClipboard = async () => {
+  if (isCopying.value) return
+  isCopying.value = true
+
+  try {
+    const blob = await qrCode.getRawData('png')
+    
+    if (blob) {
+      await navigator.clipboard.write([
+        new ClipboardItem({'image/png': blob})
+      ])
+
+      copied.value = true
+      setTimeout(() => {
+        copied.value = false
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('Failed to copy QR code to clipboard:', error)
+  }finally {
+    isCopying.value = false
+  }
+}
 
 onMounted(() => {
   if (container.value) {
