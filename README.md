@@ -55,3 +55,12 @@ Ensure you have **Node.js** (v18 or higher) and **npm** installed on your machin
    ```bash
    git clone [https://github.com/iliyaPour/QRCode-Generator-Panel.git](https:/iliyaPour/github.com//QRCode-Generator-Panel.git)
    cd QRCode-Generator-Panel
+2. Install dependencies:
+    ```bash
+   npm install
+3. Start the local development server:
+   ```bash
+   npm run dev
+4. Build for production:
+  ```bash
+  npm run build
