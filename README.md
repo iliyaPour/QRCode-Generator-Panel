@@ -30,7 +30,7 @@ A modern, client-side, high-resolution QR Code generator built with **Vue 3 (Com
 ## 🚀 Live Demo
 
 Check out the live deployment here:  
-👉 **[https://mydomain.com/projects/qrcode/](https://mydomain.com/projects/qrcode/)** *(Replace with your actual URL)*
+👉 **[https:/iliyapourzanjani.ir/projects/qrcode/](https://iliyapourzanjani.ir/projects/qrcode/)**
 
 ---
 
@@ -53,5 +53,5 @@ Ensure you have **Node.js** (v18 or higher) and **npm** installed on your machin
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/your-username/qrcode-studio.git](https://github.com/your-username/qrcode-studio.git)
+   git clone [https://github.com/iliyaPour/QRCode-Generator-Panel.git](https:/iliyaPour/github.com//QRCode-Generator-Panel.git)
    cd qrcode-studio
