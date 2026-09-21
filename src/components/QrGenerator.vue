@@ -242,7 +242,7 @@
           </div>
         </div>
 
-        <!-- Sticky Preview & Action Card (Right Column) -->
+        <!-- Sticky Preview & Export Card (Right Column) -->
         <div class="lg:col-span-5 lg:sticky lg:top-8">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center space-y-6">
             <div class="w-full flex items-center justify-between">
@@ -253,12 +253,25 @@
               </span>
             </div>
 
-            <!-- Canvas Container (سفید نگه داشته شده برای حفظ اسکن‌پذیری) -->
+            <!-- Canvas Container (سفید نگه داشته شده برای حفظ اسکن‌پذیری دوربین) -->
             <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-center shadow-inner">
               <div ref="container" class="bg-white p-3 rounded-xl shadow-sm"></div>
             </div>
 
-            <!-- Actions -->
+            <!-- Export Resolution Control -->
+            <div class="w-full bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-1.5">
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Export Resolution:</label>
+              <select
+                v-model.number="exportSize"
+                class="w-full px-3 py-2 text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200 cursor-pointer"
+              >
+                <option :value="500">500 × 500 px (Standard Web & Social)</option>
+                <option :value="1000">1000 × 1000 px (High Resolution - Print)</option>
+                <option :value="2000">2000 × 2000 px (Ultra HD - Large Poster)</option>
+              </select>
+            </div>
+
+            <!-- Action & Export Buttons -->
             <div class="w-full space-y-2.5">
               <!-- Copy to Clipboard Button -->
               <button
@@ -320,6 +333,7 @@ const fileInput = ref(null)
 const isDark = ref(false)
 const copied = ref(false)
 const isCopying = ref(false)
+const exportSize = ref(1000)
 
 const defaultOptions = {
   data: 'https://google.com',
@@ -372,7 +386,6 @@ onMounted(() => {
     qrCode.append(container.value)
   }
 
-  // مقداردهی اولیه تم از لوکال استوریج یا تنظیمات سیستم
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     isDark.value = true
@@ -448,11 +461,52 @@ const resetToDefaults = () => {
   update()
 }
 
-const downloadQr = (ext) => {
-  qrCode.download({
-    name: 'custom-qr',
-    extension: ext
+const createExportInstance = (size) => {
+  return new QRCodeStyling({
+    width: size,
+    height: size,
+    data: options.data,
+    margin: Math.round(options.margin * (size / 240)),
+    image: options.image,
+    qrOptions: {
+      errorCorrectionLevel: 'H'
+    },
+    dotsOptions: {
+      color: options.dotsColor,
+      type: options.dotsType
+    },
+    backgroundOptions: {
+      color: '#ffffff'
+    },
+    cornersSquareOptions: {
+      type: options.cornerSquareType,
+      color: options.cornerSquareColor
+    },
+    cornersDotOptions: {
+      type: options.cornerDotType,
+      color: options.cornerDotColor
+    },
+    imageOptions: {
+      crossOrigin: 'anonymous',
+      margin: Math.round(4 * (size / 240)),
+      imageSize: options.imageSize
+    }
   })
+}
+
+const downloadQr = (ext) => {
+  if (ext === 'svg') {
+    qrCode.download({
+      name: 'custom-qr',
+      extension: 'svg'
+    })
+  } else {
+    const exportQr = createExportInstance(exportSize.value)
+    exportQr.download({
+      name: `custom-qr-${exportSize.value}px`,
+      extension: 'png'
+    })
+  }
 }
 
 const copyToClipboard = async () => {
@@ -460,7 +514,8 @@ const copyToClipboard = async () => {
   isCopying.value = true
 
   try {
-    const blob = await qrCode.getRawData('png')
+    const exportQr = createExportInstance(exportSize.value)
+    const blob = await exportQr.getRawData('png')
     if (blob) {
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': blob })
