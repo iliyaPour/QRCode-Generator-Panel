@@ -78,7 +78,9 @@
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Pattern Color</label>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  {{ options.useGradient ? 'Start Color' : 'Pattern Color' }}
+                </label>
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <input
                     v-model="options.dotsColor"
@@ -87,6 +89,90 @@
                     class="w-7 h-7 rounded-lg border-0 cursor-pointer bg-transparent"
                   />
                   <span class="text-xs font-mono text-slate-600 dark:text-slate-300 uppercase">{{ options.dotsColor }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gradient Customization Box -->
+            <div class="p-3.5 bg-slate-50/90 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 block">Gradient Fill</span>
+                  <span class="text-[11px] text-slate-400 dark:text-slate-500">Apply linear or radial transitions</span>
+                </div>
+                
+                <!-- Modern Toggle Switch -->
+                <button
+                  type="button"
+                  @click="toggleGradient"
+                  :class="options.useGradient ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'"
+                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                  role="switch"
+                  :aria-checked="options.useGradient"
+                >
+                  <span
+                    :class="options.useGradient ? 'translate-x-5' : 'translate-x-0'"
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                  />
+                </button>
+              </div>
+
+              <!-- Gradient Controls -->
+              <div v-if="options.useGradient" class="pt-2 border-t border-slate-200/60 dark:border-slate-700/60 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Type</label>
+                    <select
+                      v-model="options.gradientType"
+                      @change="update"
+                      class="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 cursor-pointer focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                    >
+                      <option value="linear">Linear</option>
+                      <option value="radial">Radial</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">End Color</label>
+                    <div class="flex items-center gap-2 px-3 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                      <input
+                        v-model="options.gradientColor2"
+                        @input="update"
+                        type="color"
+                        class="w-6 h-6 rounded-md border-0 cursor-pointer bg-transparent"
+                      />
+                      <span class="text-xs font-mono text-slate-600 dark:text-slate-300 uppercase">{{ options.gradientColor2 }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Rotation Slider (Linear Only) -->
+                <div v-if="options.gradientType === 'linear'" class="space-y-2 pt-1">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-medium text-slate-600 dark:text-slate-400">Angle / Rotation</span>
+                    <span class="px-2 py-0.5 font-mono text-[11px] font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900 rounded-md">
+                      {{ options.gradientRotation }}°
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-semibold text-slate-400">0°</span>
+                    <input
+                      v-model.number="options.gradientRotation"
+                      @input="update"
+                      type="range"
+                      min="0"
+                      max="360"
+                      step="15"
+                      class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer 
+                             [&::-webkit-slider-runnable-track]:rounded-lg [&::-webkit-slider-runnable-track]:bg-slate-200 dark:[&::-webkit-slider-runnable-track]:bg-slate-700
+                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 
+                             [&::-webkit-slider-thumb]:bg-white dark:[&::-webkit-slider-thumb]:bg-slate-100 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-indigo-600 
+                             [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md 
+                             [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-150 
+                             hover:[&::-webkit-slider-thumb]:scale-110 active:[&::-webkit-slider-thumb]:scale-95 focus:outline-none"
+                    />
+                    <span class="text-[10px] font-semibold text-slate-400">360°</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -253,7 +339,7 @@
               </span>
             </div>
 
-            <!-- Canvas Container (سفید نگه داشته شده برای حفظ اسکن‌پذیری دوربین) -->
+            <!-- Canvas Container -->
             <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-center shadow-inner">
               <div ref="container" class="bg-white p-3 rounded-xl shadow-sm"></div>
             </div>
@@ -335,21 +421,52 @@ const copied = ref(false)
 const isCopying = ref(false)
 const exportSize = ref(1000)
 
+// Default configuration reference
 const defaultOptions = {
   data: 'https://google.com',
   margin: 4,
   dotsColor: '#4f46e5',
   dotsType: 'rounded',
+  // Gradient state
+  useGradient: false,
+  gradientType: 'linear',
+  gradientColor2: '#06b6d4',
+  gradientRotation: 0,
+  // Corners styling
   cornerSquareType: 'extra-rounded',
   cornerSquareColor: '#312e81',
   cornerDotType: 'dot',
   cornerDotColor: '#312e81',
+  // Logo
   image: '',
   imageSize: 0.35
 }
 
 const options = reactive({ ...defaultOptions })
 
+// Helper to construct dots options with optional gradient
+const getDotsOptions = () => {
+  if (!options.useGradient) {
+    return {
+      type: options.dotsType,
+      color: options.dotsColor
+    }
+  }
+
+  return {
+    type: options.dotsType,
+    gradient: {
+      type: options.gradientType,
+      rotation: (options.gradientRotation * Math.PI) / 180,
+      colorStops: [
+        { offset: 0, color: options.dotsColor },
+        { offset: 1, color: options.gradientColor2 }
+      ]
+    }
+  }
+}
+
+// Instantiate core QR Code engine
 const qrCode = new QRCodeStyling({
   width: 240,
   height: 240,
@@ -359,10 +476,7 @@ const qrCode = new QRCodeStyling({
   qrOptions: {
     errorCorrectionLevel: 'H'
   },
-  dotsOptions: {
-    color: options.dotsColor,
-    type: options.dotsType
-  },
+  dotsOptions: getDotsOptions(),
   backgroundOptions: {
     color: '#ffffff'
   },
@@ -386,6 +500,7 @@ onMounted(() => {
     qrCode.append(container.value)
   }
 
+  // Restore theme from localStorage or system preference
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     isDark.value = true
@@ -407,15 +522,17 @@ const toggleDarkMode = () => {
   }
 }
 
+const toggleGradient = () => {
+  options.useGradient = !options.useGradient
+  update()
+}
+
 const update = () => {
   qrCode.update({
     data: options.data,
     margin: options.margin,
     image: options.image,
-    dotsOptions: {
-      color: options.dotsColor,
-      type: options.dotsType
-    },
+    dotsOptions: getDotsOptions(),
     backgroundOptions: {
       color: '#ffffff'
     },
@@ -461,6 +578,7 @@ const resetToDefaults = () => {
   update()
 }
 
+// Generate an offscreen high-resolution instance for exports
 const createExportInstance = (size) => {
   return new QRCodeStyling({
     width: size,
@@ -471,10 +589,7 @@ const createExportInstance = (size) => {
     qrOptions: {
       errorCorrectionLevel: 'H'
     },
-    dotsOptions: {
-      color: options.dotsColor,
-      type: options.dotsType
-    },
+    dotsOptions: getDotsOptions(),
     backgroundOptions: {
       color: '#ffffff'
     },
